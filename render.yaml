@@ -1,0 +1,111 @@
+
+# Overview
+
+# Render is used to manage the deployment of the application
+# We have a staging and production environment
+# The render.yaml file is the one source of truth for the services
+# The render dashboard is the one source of truth for the environment variables
+
+
+# Deployment
+
+# Deploy changes to staging by pushing to the render-staging branch
+# Deploy changes to production by pushing to the render-prod branch
+# Only push code from main to render-staging and render-prod
+# Deployment terminal command: git push origin main:render-staging
+
+
+# Managing Services
+
+# We are managing the services via infrastructure as code using the render.yaml file
+# The render.yaml is the one source of truth for the services
+# Do NOT make any changes to the services within the Render dashboard - this will cause conflicts
+# Exception: Environment variables are managed in the Render dashboard
+# Reference: https://render.com/docs/blueprint-spec
+
+
+# Environment Variables
+
+# All enviroment variables will be set in the Render dashboard
+# This is done to prevent sensitive information from being stored in the render.yaml file
+# It's also to keep one source of truth for the environment variables
+# Do NOT add any environment variables to the render.yaml file
+# https://docs.render.com/configure-environment-variables
+
+
+# How to add or modify a service
+
+# 1. Add the service to the render.yaml file
+# 2. Push the changes to the render-staging & render-prod branches
+
+
+---
+services:
+  # ------- Staging -------
+  - name: staging-api
+    type: web
+    runtime: docker
+    rootDir: backend
+    # buildCommand: cd backend && ./build.sh
+    # startCommand: cd backend && python3 manage.py runserver 0.0.0.0:8000
+    healthCheckPath: /health
+    plan: standard
+    branch: render-staging
+    numInstances: 1
+
+  - name: staging-web-app
+    type: web
+    env: static
+    buildCommand: |
+      cd web_app
+      rm -rf node_modules
+      yarn install
+      yarn build
+    staticPublishPath: web_app/build
+    branch: render-staging
+    routes:
+      # rewrite /* requests to /index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
+  # ------- Production -------
+  - name: prod-api
+    type: web
+    runtime: docker
+    rootDir: backend
+    # buildCommand: cd backend && ./build.sh
+    startCommand: python3 manage.py runserver 0.0.0.0:8000
+    healthCheckPath: /health  
+    plan: standard
+    branch: render-prod
+    numInstances: 1
+
+  - name: prod-web-app
+    type: web
+    env: static
+    buildCommand: |
+      cd web_app
+      rm -rf node_modules
+      yarn install
+      yarn build
+    staticPublishPath: web_app/build
+    branch: render-prod
+    routes:
+      # rewrite /* requests to /index.html
+      - type: rewrite
+        source: /*
+        destination: /index.html
+        
+databases:
+  # ------- Staging -------
+  - name: staging
+    databaseName: staging
+    ipAllowList: # optional (defaults to allow all)
+      - source: 0.0.0.0/0
+        description: everywhere
+  # ------- Production -------
+  - name: production
+    databaseName: production
+    ipAllowList: # optional (defaults to allow all)
+      - source: 0.0.0.0/0
+        description: everywhere

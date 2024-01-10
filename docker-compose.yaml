@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    # environment:
+    #   - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    # env_file:
+      # - .env
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 1s
+      retries: 3
+
+  api:
+    build: ./  # Specify the path to your Django application's Dockerfile
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./:/app 
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    # environment:
+    #   - PYTHONUNBUFFERED=1
+    #   - CHANNELS_REDIS=redis://redis:6379/0 # TODO Remove this, we are not using Redis
+    #   - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    #   - OPENAI_API_KEY=${OPENAI_API_KEY}
+    #   - SERVER_TYPE=development
+    #   - DJANGO_SETTINGS_MODULE=backend.settings
+    # env_file:
+    #   - .env
+
+volumes:
+  postgres_data:
