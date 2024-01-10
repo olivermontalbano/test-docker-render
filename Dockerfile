@@ -24,4 +24,4 @@ COPY . .
 ENV DJANGO_SETTINGS_MODULE=mysite.settings
 
 # Expose the port on which the Django app will run
-EXPOSE 8000
+EXPOSE 10000
