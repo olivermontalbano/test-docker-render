@@ -1,3 +1,4 @@
+
 # Use the official Python base image
 # Render requires the --platform flag to be set to linux/amd64
 # https://docs.render.com/deploy-an-image#image-requirements
@@ -25,3 +26,6 @@ ENV DJANGO_SETTINGS_MODULE=mysite.settings
 
 # Expose the port on which the Django app will run
 EXPOSE 8000
+
+# Run the Django app
+ENTRYPOINT ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
