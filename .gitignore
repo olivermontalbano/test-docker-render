@@ -1,0 +1,10 @@
+env
+.env
+.idea
+*env
+web_app/node_modules
+**/__pycache__/
+*.pyc
+files/
+node_modules/
+yarn.lock

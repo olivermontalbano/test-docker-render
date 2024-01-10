@@ -21,7 +21,7 @@ RUN apt-get update && \
 COPY . .
 
 # Set the environment variable for Django to run in production mode
-ENV DJANGO_SETTINGS_MODULE=backend.settings
+ENV DJANGO_SETTINGS_MODULE=mysite.settings
 
 # Expose the port on which the Django app will run
 EXPOSE 8000

@@ -45,67 +45,18 @@ services:
   - name: staging-api
     type: web
     runtime: docker
-    rootDir: backend
+    # rootDir: backend
     # buildCommand: cd backend && ./build.sh
     # startCommand: cd backend && python3 manage.py runserver 0.0.0.0:8000
     healthCheckPath: /health
     plan: standard
     branch: render-staging
     numInstances: 1
-
-  - name: staging-web-app
-    type: web
-    env: static
-    buildCommand: |
-      cd web_app
-      rm -rf node_modules
-      yarn install
-      yarn build
-    staticPublishPath: web_app/build
-    branch: render-staging
-    routes:
-      # rewrite /* requests to /index.html
-      - type: rewrite
-        source: /*
-        destination: /index.html
-  # ------- Production -------
-  - name: prod-api
-    type: web
-    runtime: docker
-    rootDir: backend
-    # buildCommand: cd backend && ./build.sh
-    startCommand: python3 manage.py runserver 0.0.0.0:8000
-    healthCheckPath: /health  
-    plan: standard
-    branch: render-prod
-    numInstances: 1
-
-  - name: prod-web-app
-    type: web
-    env: static
-    buildCommand: |
-      cd web_app
-      rm -rf node_modules
-      yarn install
-      yarn build
-    staticPublishPath: web_app/build
-    branch: render-prod
-    routes:
-      # rewrite /* requests to /index.html
-      - type: rewrite
-        source: /*
-        destination: /index.html
         
 databases:
   # ------- Staging -------
   - name: staging
     databaseName: staging
-    ipAllowList: # optional (defaults to allow all)
-      - source: 0.0.0.0/0
-        description: everywhere
-  # ------- Production -------
-  - name: production
-    databaseName: production
     ipAllowList: # optional (defaults to allow all)
       - source: 0.0.0.0/0
         description: everywhere
